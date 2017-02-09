@@ -1,5 +1,6 @@
 module Usps
   class Package < Base
+    attr_accessor :package_id
     def initialize(params)
       @package = params[:package]
       @user = params[:user]
@@ -12,46 +13,30 @@ module Usps
     def load_and_record_labeled_package
       xml_request = form_xml_for_labeled_package
       response = Usps::Request.request(:load_and_record_labeled_package, xml_request, true)
+      @package_id = response.find_value(:package_id) if response.success?
+      response
     end
 
-    def get_package_labels(package_id)
+    def get_package_labels
       token = Usps::Request.get_token
       response = Usps::Request.request(:get_package_labels,
       {
-        "PackageID" => package_id,
-        "MailingAgentID" => WorkstationID,
-        "BoxNumber" => 1,
-        "FileFormat" => "PNG",
+        "PackageID" => @package_id,
+        "MailingAgentID" => Usps.configuration.agent_id,
+        "BoxNumber" => @add_information['box_number'],
+        "FileFormat" => @add_information['image_file_format'],
         "AccessToken" => token
       })
-      binding.pry
-      if response.success?
-        base64_data = nested_hash_value(response.body, :base64_binary)
-        base64_data.each_with_index do |data, id|
-          File.open("shipping_label#{id}.png", 'wb') do|f|
-            f.write(Base64.decode64(data))
-          end
-        end
-        success([])
-      else
-        error(response.get_error_hash)
-      end
     end
 
-    def add_package_in_receptacle(package_id, receptacle_id)
+    def add_package_in_receptacle(receptacle_id)
       token = Usps::Request.get_token
       response = Usps::Request.request(:add_package_in_receptacle,
       {
-        "USPSPackageTrackingID" => package_id,
+        "USPSPackageTrackingID" => @package_id,
         "ReceptacleID" => receptacle_id,
         "AccessToken" => token
       })
-      binding.pry
-      if response.success?
-        response
-      else
-        response.get_error_hash
-      end
     end
 
   private
@@ -99,14 +84,11 @@ module Usps
     def get_request_header
       {
         "Dispatch" => {
-          "RecordType" => "C",
           "ShippingAgentID" => Usps.configuration.agent_id,
           "ReceivingAgentID" => @add_information["receiving_agent_id"],
-          "DataFileID" => @package['id'],
           "DataFileCreationDateandTime" => DateTime.now.strftime('%Y-%m-%dT%I:%M:%S'),
           "TimeZone" => @add_information["time_zone"],
-          "FileFormatVersion" => @add_information["file_format_version"],
-          "RecordTerminator" => 13.chr + 10.chr
+          "FileFormatVersion" => @add_information["file_format_version"]
         }
       }
     end
@@ -114,7 +96,6 @@ module Usps
     def get_package_data
       hash = {
         "Package" => {
-          "RecordType" => "P",
           "OrderID" => @package['id'],
           "ItemValueCurrencyType" => @add_information["item_value_currency_type"],
 
@@ -156,28 +137,25 @@ module Usps
           "PackagePhysicalCount" => @add_information['package_physical_count'],
           "MailingAgentID" => Usps.configuration.agent_id,
           "ValueLoaded" => @add_information['value_loaded'],
-          "PFCorEEL" => @add_information['pf_cor_eel'],
-          "RecordTerminator" => 13.chr + 10.chr
+          "PFCorEEL" => @add_information['pf_cor_eel']
         }
       }
       hash["Package"]["RecipientAddress_Line_2"] = @address['address2'] unless @address['address2'].blank?
       hash["Package"]["RecipientAddress_Line_3"] = @address['address2'] unless @address['address3'].blank?
-      unless @package['insurance'].blank? || @package['insurance'].to_f == 0.0
-        hash["Package"]["ShippingandHandling"] = @package['insurance'].to_f
+      unless @package['insurance_value'].blank? || @package['insurance_value'].to_f == 0.0
+        hash["Package"]["ShippingandHandling"] = @package['insurance_value'].to_f
       end
       hash
     end
 
     def get_declaration_data(declaration)
       {
-        "RecordType" => "I",
         "ItemID" => declaration['id'],
         "ItemDescription" => declaration['item'],
         "UnitValue" => declaration['value'].to_s,
         "Quantity" => declaration['quantity'],
         "ItemWeight" => declaration['weight'],
-        "UnitofItemWeight" => @add_information['weight_unit'],
-        "RecordTerminator" => 13.chr + 10.chr
+        "UnitofItemWeight" => @add_information['weight_unit']
       }
     end
 
