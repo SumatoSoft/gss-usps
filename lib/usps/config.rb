@@ -2,7 +2,7 @@ module Usps
   class Config
     include ActiveSupport::Configurable
 
-    config_accessor :wsdl, :user_id, :password, :location_id, :agent_id
+    config_accessor :wsdl, :user_id, :password, :location_id, :agent_id, :entry_facility_zip
 
     def initialize(options = {})
       options.each do |key, value|
