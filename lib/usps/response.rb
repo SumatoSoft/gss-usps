@@ -5,7 +5,14 @@ module Usps
 
     ERROR_CODES = {
       authenticate_user: :response_code,
-      load_and_record_labeled_package: :reject_package_count
+      load_and_record_labeled_package: :reject_package_count,
+      get_package_labels: :response_code,
+      add_package_in_receptacle: :response_code,
+
+      create_receptacle_for_rate_type_to_destination: :response_code,
+      get_receptacle_label: :response_code,
+      move_receptacle_to_open_dispatch: :response_code
+
     }
 
     def initialize(response, web_method)
@@ -28,20 +35,21 @@ module Usps
     end
 
     def success?
-      is_a? Usps::Success
+      http_correct? && soap_correct?
     end
 
     def find_value(key)
       nested_hash_value(@hash, key)
     end
 
-  private
+    private
+
     def nested_hash_value(obj, key)
       if obj.respond_to?(:key?) && obj.key?(key)
         obj[key]
       elsif obj.respond_to?(:each)
         r = nil
-        obj.find{ |*a| r = nested_hash_value(a.last, key) }
+        obj.find { |*a| r = nested_hash_value(a.last, key) }
         r
       end
     end
