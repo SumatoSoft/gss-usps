@@ -37,13 +37,19 @@ module Usps
                             'AccessToken' => token)
     end
 
+    def calculate_postage
+      xml_request = form_xml_for_calculate_postage
+      Usps::Request.request(:calculate_postage, xml_request, true)
+    end
+
     private
 
     def form_xml_for_calculate_postage
+      method_attr = {'xmlns' => ''}
       envelope_attr = { 'xmlns:soapenv' => 'http://schemas.xmlsoap.org/soap/envelope/',
                         'xmlns:gss' => 'http://www.usps-cpas.com/usps-cpas/GSSAPI/' }
 
-      hash_doc = form_hash_for_labeled_package
+      hash_doc = form_hash_for_calculate_postage
       token = Usps::Request.token
 
       builder = Nokogiri::XML::Builder.new do |xml|
@@ -51,7 +57,9 @@ module Usps
           xml.send('soapenv:Body') do
             xml.send('gss:CalculatePostage') do
               xml.send('gss:xmlDoc') do
-                hash_to_xml(hash_doc, xml)
+                xml.send('CalculatePostage', method_attr) do
+                  hash_to_xml(hash_doc, xml)
+                end
               end
               xml.send('gss:AccessToken', token)
             end
@@ -60,6 +68,25 @@ module Usps
       end
 
       builder.to_xml
+    end
+
+    def form_hash_for_calculate_postage
+      {
+        'CountryCode' => @address['country'],
+        'PostalCode' => @address['zip'],
+        'ServiceType' => @add_information['service_type'],
+        'RateType' =>  @add_information['rate_type'],
+        'PackageWeight' => @package['weight'],
+        'UnitOfWeight' => @add_information['weight_unit'],
+        'PackageLength' => @package['length'],
+        'PackageWidth' => @package['width'],
+        'PackageHeight' => @package['height'],
+        'UnitOfMeasurement' => @add_information['unit_of_measurement'],
+        'NonRectangular' => @add_information['non_rectangular'],
+        'DestinationLocationID' => Usps.configuration.location_id,
+        'RateAdjustmentCode' => @add_information['rate_adjustment_code'],
+        'EntryFacilityZip' => Usps.configuration.entry_facility_zip
+      }
     end
 
     def form_xml_for_labeled_package
@@ -150,7 +177,7 @@ module Usps
           'PackageID' => @package['id'],
           'PackageWeight' => @package['weight'],
           'WeightUnit' => @add_information['weight_unit'],
-          'UnitOfMeasurement' =>  @add_information['unit_of_measurement'],
+          'UnitOfMeasurement' => @add_information['unit_of_measurement'],
 
           'ServiceType' => @add_information['service_type'],
           'RateType' => @add_information['rate_type'],
