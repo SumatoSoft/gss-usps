@@ -1,4 +1,4 @@
-module Usps
+module GssUsps
   class Receptacle
     attr_accessor :receptacle_id
     def initialize(receptacle_id = nil)
@@ -6,8 +6,8 @@ module Usps
     end
 
     def create_receptacle_for_rate_type_to_destination(params)
-      token = Usps::Request.token
-      response = Usps::Request.request(:create_receptacle_for_rate_type_to_destination,
+      token = GssUsps::Request.token
+      response = GssUsps::Request.request(:create_receptacle_for_rate_type_to_destination,
                                        'RateType' => params['rate_type'],
                                        'Dutiable' => params['dutiable'],
                                        'ReceptacleType' => params['receptacle_type'],
@@ -22,16 +22,16 @@ module Usps
     end
 
     def get_receptacle_label(params)
-      token = Usps::Request.token
-      Usps::Request.request(:get_receptacle_label,
+      token = GssUsps::Request.token
+      GssUsps::Request.request(:get_receptacle_label,
                             'ReceptacleID' => @receptacle_id,
                             'FileFormat' => params['file_format'],
                             'AccessToken' => token)
     end
 
     def move_receptacle_to_open_dispatch
-      token = Usps::Request.token
-      Usps::Request.request(:move_receptacle_to_open_dispatch,
+      token = GssUsps::Request.token
+      GssUsps::Request.request(:move_receptacle_to_open_dispatch,
                             'ReceptacleID' => @receptacle_id,
                             'AccessToken' => token)
     end

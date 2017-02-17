@@ -1,4 +1,4 @@
-module Usps
+module GssUsps
   class Package
     attr_accessor :package_id
     def initialize(params, package_id = nil)
@@ -14,24 +14,24 @@ module Usps
     def load_and_record_labeled_package
       xml_request = form_xml_for_labeled_package
 
-      response = Usps::Request.request(:load_and_record_labeled_package, xml_request, true)
+      response = GssUsps::Request.request(:load_and_record_labeled_package, xml_request, true)
       @package_id = response.find_value(:package_id) if response.success?
       response
     end
 
     def get_package_labels(params)
-      token = Usps::Request.token
-      Usps::Request.request(:get_package_labels,
+      token = GssUsps::Request.token
+      GssUsps::Request.request(:get_package_labels,
                             'PackageID' => @package_id,
-                            'MailingAgentID' => Usps.configuration.agent_id,
+                            'MailingAgentID' => GssUsps.configuration.agent_id,
                             'BoxNumber' => params['box_number'],
                             'FileFormat' => params['image_file_format'],
                             'AccessToken' => token)
     end
 
     def add_package_in_receptacle(receptacle_id)
-      token = Usps::Request.token
-      Usps::Request.request(:add_package_in_receptacle,
+      token = GssUsps::Request.token
+      GssUsps::Request.request(:add_package_in_receptacle,
                             'USPSPackageTrackingID' => @package_id,
                             'ReceptacleID' => receptacle_id,
                             'AccessToken' => token)
@@ -39,7 +39,7 @@ module Usps
 
     def calculate_postage
       xml_request = form_xml_for_calculate_postage
-      Usps::Request.request(:calculate_postage, xml_request, true)
+      GssUsps::Request.request(:calculate_postage, xml_request, true)
     end
 
     private
@@ -50,7 +50,7 @@ module Usps
                         'xmlns:gss' => 'http://www.usps-cpas.com/usps-cpas/GSSAPI/' }
 
       hash_doc = form_hash_for_calculate_postage
-      token = Usps::Request.token
+      token = GssUsps::Request.token
 
       builder = Nokogiri::XML::Builder.new do |xml|
         xml.send('soapenv:Envelope', envelope_attr) do
@@ -83,9 +83,9 @@ module Usps
         'PackageHeight' => @package['height'],
         'UnitOfMeasurement' => @add_information['unit_of_measurement'],
         'NonRectangular' => @add_information['non_rectangular'],
-        'DestinationLocationID' => Usps.configuration.location_id,
+        'DestinationLocationID' => GssUsps.configuration.location_id,
         'RateAdjustmentCode' => @add_information['rate_adjustment_code'],
-        'EntryFacilityZip' => Usps.configuration.entry_facility_zip
+        'EntryFacilityZip' => GssUsps.configuration.entry_facility_zip
       }
     end
 
@@ -98,7 +98,7 @@ module Usps
                         'xmlns:gss' => 'http://www.usps-cpas.com/usps-cpas/GSSAPI/' }
 
       hash_doc = form_hash_for_labeled_package
-      token = Usps::Request.token
+      token = GssUsps::Request.token
 
       builder = Nokogiri::XML::Builder.new do |xml|
         xml.send('soapenv:Envelope', envelope_attr) do
@@ -133,7 +133,7 @@ module Usps
     def request_header
       {
         'Dispatch' => {
-          'ShippingAgentID' => Usps.configuration.agent_id,
+          'ShippingAgentID' => GssUsps.configuration.agent_id,
           'ReceivingAgentID' => @add_information['receiving_agent_id'],
           'DataFileCreationDateandTime' => DateTime.now.strftime('%Y-%m-%dT%I:%M:%S'),
           'TimeZone' => @add_information['time_zone'],
@@ -182,7 +182,7 @@ module Usps
           'ServiceType' => @add_information['service_type'],
           'RateType' => @add_information['rate_type'],
           'PackagePhysicalCount' => @add_information['package_physical_count'],
-          'MailingAgentID' => Usps.configuration.agent_id,
+          'MailingAgentID' => GssUsps.configuration.agent_id,
           'ValueLoaded' => @add_information['value_loaded'],
           'PFCorEEL' => @add_information['pf_cor_eel']
         }

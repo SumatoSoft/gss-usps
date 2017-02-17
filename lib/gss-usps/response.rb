@@ -1,4 +1,4 @@
-module Usps
+module GssUsps
   class Response
     HTTP_OK_STATUS = 200
     SOAP_OK_STATUS = 0

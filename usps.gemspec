@@ -1,17 +1,17 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'usps/version'
+require 'gss-usps/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "usps"
-  spec.version       = Usps::VERSION
+  spec.name          = "gss-usps"
+  spec.version       = GssUsps::VERSION
   spec.authors       = ["Gleb Mikulko"]
   spec.email         = ["g.mikulko@sumatosoft.com"]
 
   spec.summary       = %q{Write a short summary, because Rubygems requires one.}
   spec.description   = %q{Write a longer description or delete this line.}
-  spec.homepage      = "https://github.com/SumatoSoft"
+  spec.homepage      = "https://github.com/SumatoSoft/gss-usps"
   spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'

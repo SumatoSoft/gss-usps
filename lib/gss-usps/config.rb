@@ -1,4 +1,4 @@
-module Usps
+module GssUsps
   class Config
     include ActiveSupport::Configurable
 

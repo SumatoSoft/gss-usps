@@ -1,3 +1,3 @@
-module Usps
+module GssUsps
   VERSION = '0.1.0'
 end
