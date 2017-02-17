@@ -5,15 +5,18 @@ module Usps
 
     ERROR_CODES = {
       authenticate_user: :response_code,
+
       load_and_record_labeled_package: :reject_package_count,
       get_package_labels: :response_code,
       add_package_in_receptacle: :response_code,
+      calculate_postage: :response_code,
 
       create_receptacle_for_rate_type_to_destination: :response_code,
       get_receptacle_label: :response_code,
       move_receptacle_to_open_dispatch: :response_code
 
-    }
+
+    }.freeze
 
     def initialize(response, web_method)
       @savon = response
