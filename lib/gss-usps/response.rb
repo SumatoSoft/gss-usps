@@ -13,9 +13,11 @@ module GssUsps
 
       create_receptacle_for_rate_type_to_destination: :response_code,
       get_receptacle_label: :response_code,
-      move_receptacle_to_open_dispatch: :response_code
+      move_receptacle_to_open_dispatch: :response_code,
 
-
+      close_dispatch: :response_code,
+      get_required_reports_for_dispatch: :response_code,
+      get_dispatch_report: :response_code
     }.freeze
 
     def initialize(response, web_method)
