@@ -6,13 +6,9 @@ module GssUsps
       @dispatch_id = dispatch_id
     end
 
-    def close_dispatch(params)
+    def close_dispatch
       token = GssUsps::Request.token
       response = GssUsps::Request.request(:close_dispatch,
-                                       'VehicleNum' => params['vehicle_num'],
-                                       'VehicleType' => params['vehicle_type'],
-                                       'DepDateTime' => params['dep_date_time'],
-                                       'ArrDateTime' => params['arr_date_time'],
                                        'AccessToken' => token)
       @dispatch_id = response.find_value(:dispatch_id) if response.success?
       response
