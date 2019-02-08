@@ -1,7 +1,8 @@
 module GssUsps
   module Request
     def self.request(web_method, params, raw_xml = false)
-      client = Savon.client(wsdl: GssUsps.configuration.wsdl)
+      client = Savon.client(wsdl: GssUsps.configuration.wsdl,
+                            follow_redirects: GssUsps.configuration.follow_redirects, log: true)
 
       response = if raw_xml
                    client.call(web_method, xml: params)
