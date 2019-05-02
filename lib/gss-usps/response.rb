@@ -29,6 +29,10 @@ module GssUsps
       http_correct? && soap_correct?
     end
 
+    def failure?
+      !success?
+    end
+
     def find_value(key)
       nested_hash_value(@hash, key)
     end
