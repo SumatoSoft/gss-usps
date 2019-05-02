@@ -4,20 +4,7 @@ module GssUsps
     SOAP_OK_STATUS = 0
 
     ERROR_CODES = {
-      authenticate_user: :response_code,
-
-      load_and_record_labeled_package: :reject_package_count,
-      get_package_labels: :response_code,
-      add_package_in_receptacle: :response_code,
-      calculate_postage: :response_code,
-
-      create_receptacle_for_rate_type_to_destination: :response_code,
-      get_receptacle_label: :response_code,
-      move_receptacle_to_open_dispatch: :response_code,
-
-      close_dispatch: :response_code,
-      get_required_reports_for_dispatch: :response_code,
-      get_dispatch_report: :response_code
+      load_and_record_labeled_package: :reject_package_count
     }.freeze
 
     def initialize(response, web_method)
@@ -35,8 +22,7 @@ module GssUsps
     end
 
     def soap_correct?
-      checked_field = ERROR_CODES[@web_method]
-      find_value(checked_field).to_i == SOAP_OK_STATUS
+      Integer(find_value(field_with_response_code)) == SOAP_OK_STATUS
     end
 
     def success?
@@ -48,6 +34,10 @@ module GssUsps
     end
 
     private
+
+    def field_with_response_code
+      ERROR_CODES.fetch(@web_method, :response_code)
+    end
 
     def nested_hash_value(obj, key)
       if obj.respond_to?(:key?) && obj.key?(key)
