@@ -58,6 +58,13 @@ module GssUsps
       GssUsps::Request.request(:calculate_postage, xml_request, true)
     end
 
+    def remove_package_from_default_shipment
+      token = GssUsps::Request.token
+      GssUsps::Request.request(:remove_package_from_default_shipment,
+                               'USPSPackageTrackingID' => @package_id,
+                               'AccessToken' => token)
+    end
+
     private
 
     def form_xml_for_calculate_postage
