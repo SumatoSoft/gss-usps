@@ -65,6 +65,15 @@ module GssUsps
                                'AccessToken' => token)
     end
 
+    def track_package(params)
+      token = GssUsps::Request.token
+      GssUsps::Request.request(:track_package,
+                               'PackageID' => @package.id,
+                               'MailingAgentID' => GssUsps.configuration.agent_id,
+                               'BoxNumber' => params['box_number'],
+                               'AccessToken' => token)
+    end
+
     private
 
     def form_xml_for_calculate_postage
