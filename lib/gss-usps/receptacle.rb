@@ -35,5 +35,19 @@ module GssUsps
                             'ReceptacleID' => @receptacle_id,
                             'AccessToken' => token)
     end
+
+    def remove_receptacle_from_open_dispatch
+      token = GssUsps::Request.token
+      GssUsps::Request.request(:remove_receptacle_from_open_dispatch,
+                               'ReceptacleID' => @receptacle_id,
+                               'AccessToken' => token)
+    end
+
+    def remove_receptacle_from_default_shipment
+      token = GssUsps::Request.token
+      GssUsps::Request.request(:remove_receptacle_from_default_shipment,
+                               'ReceptacleID' => @receptacle_id,
+                               'AccessToken' => token)
+    end
   end
 end

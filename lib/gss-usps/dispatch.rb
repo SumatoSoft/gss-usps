@@ -14,6 +14,13 @@ module GssUsps
       response
     end
 
+    def reopen_dispatch
+      token = GssUsps::Request.token
+      GssUsps::Request.request(:reopen_dispatch,
+                               'DispatchID' => @dispatch_id,
+                               'AccessToken' => token)
+    end
+
     def get_required_reports_for_dispatch
       token = GssUsps::Request.token
       GssUsps::Request.request(:get_required_reports_for_dispatch,

@@ -37,9 +37,41 @@ module GssUsps
                             'AccessToken' => token)
     end
 
+    def add_packages_to_receptacle(receptacle_id)
+      token = GssUsps::Request.token
+      GssUsps::Request.request(:add_packages_to_receptacle,
+                               'USPSPackageID' => @package_id,
+                               'ReceptacleID' => receptacle_id,
+                               'AccessToken' => token)
+    end
+
+    def remove_package_from_receptacle(receptacle_id)
+      token = GssUsps::Request.token
+      GssUsps::Request.request(:remove_package_from_receptacle,
+                               'USPSPackageTrackingID' => @package_id,
+                               'ReceptacleID' => receptacle_id,
+                               'AccessToken' => token)
+    end
+
     def calculate_postage
       xml_request = form_xml_for_calculate_postage
       GssUsps::Request.request(:calculate_postage, xml_request, true)
+    end
+
+    def remove_package_from_default_shipment
+      token = GssUsps::Request.token
+      GssUsps::Request.request(:remove_package_from_default_shipment,
+                               'USPSPackageTrackingID' => @package_id,
+                               'AccessToken' => token)
+    end
+
+    def track_package(params)
+      token = GssUsps::Request.token
+      GssUsps::Request.request(:track_package,
+                               'PackageID' => @package.id,
+                               'MailingAgentID' => GssUsps.configuration.agent_id,
+                               'BoxNumber' => params['box_number'],
+                               'AccessToken' => token)
     end
 
     private
